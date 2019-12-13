@@ -1,9 +1,6 @@
 const canvas = document.getElementById("canvas");
 const ctx = canvas.getContext("2d");
 
-
-var speed = document.getElementById("speed").value;
-
 //MAZE
 var grid = [];
 var current;
@@ -17,49 +14,113 @@ var openSet = [];
 var closedSet = [];
 var start;
 var end;
+var path = [];
+var alreadyGeneratedPath = false;
+
+//PLAYER
+var player;
+var weg = [];
 
 var updateInteval;
-var path = [];
 
+
+var speed = document.getElementById("speed").value;
 document.getElementById("startPath").disabled = true;
+document.getElementById("startPlay").disabled = true;
+document.getElementById("startSurrender").disabled = true;
 
 
+//PLAY
+function play() {
+    if (!player) {
+        player = new Player();
+    }
+    document.getElementById("startPath").disabled = true;
+    document.getElementById("startSurrender").disabled = false;
+    updateInteval = setInterval(updatePlayer, 1000 / 13);
+}
+function surrender() {
+    clearInterval(updateInteval);
+    end.show();
+    ctx.fillStyle = "green";
+    ctx.fillRect(0 * scale + scale * 0.25, 0 * scale + scale * 0.25, scale - scale * 0.5, scale - scale * 0.5);
+    document.getElementById("startPath").disabled = false;
+    weg.push(grid[index(player.x, player.y)]);
+    for (var i = 0; i < weg.length; i++) {
+        weg[i].showPath("#6100C9");
+    }
+    ctx.fillStyle = "green";
+    ctx.fillRect(0 * scale + scale * 0.25, 0 * scale + scale * 0.25, scale - scale * 0.5, scale - scale * 0.5);
+    document.getElementById("startSurrender").disabled = false;
+}
+document.addEventListener("keydown", ((evt) => {
+    if (player) {
+        player.changeDirection(evt.key);
+    }
+}));
+
+document.addEventListener("keyup", ((evt) => {
+    if (player) {
+        player.stop();
+    }
+}));
+function updatePlayer() {
+    for (var i = 0; i < grid.length; i++) {
+        grid[i].show();
+    }
+    player.update();
+    player.show();
+
+    if (player.x == end.x && player.y == end.y) {
+        clearInterval(updateInteval);
+        end.show();
+        document.getElementById("startPath").disabled = false;
+
+        weg.push(end);
+        for (var i = 0; i < weg.length; i++) {
+            weg[i].showPath("#6100C9");
+        }
+        ctx.fillStyle = "green";
+        ctx.fillRect(0 * scale + scale * 0.25, 0 * scale + scale * 0.25, scale - scale * 0.5, scale - scale * 0.5);
+
+    }
+}
+
+//MAZE
 function generate() {
     var speed = document.getElementById("speed").value;
-if(alreadyGenerated == false)
-{
-    var felder = document.getElementById("felder").value;
-    scale = Math.floor((canvas.height * canvas.width) / felder / 100);
-    rows = Math.floor(canvas.height / scale);
-    columns = Math.floor(canvas.width / scale);
+    if (alreadyGenerated == false) {
+        var felder = document.getElementById("felder").value;
+        scale = Math.floor((canvas.height * canvas.width) / felder / 100);
+        rows = Math.floor(canvas.height / scale);
+        columns = Math.floor(canvas.width / scale);
 
 
-    for (var y = 0; y < rows; y++) {
-        for (var x = 0; x < columns; x++) {
-            wall = new Wall(x, y);
-            grid.push(wall);
+        for (var y = 0; y < rows; y++) {
+            for (var x = 0; x < columns; x++) {
+                wall = new Wall(x, y);
+                grid.push(wall);
 
+            }
         }
+        current = grid[0];
+
+
+        start = grid[0];
+        end = grid[grid.length - 1];
+        openSet.push(start);
+
+
+        for (var i = 0; i < grid.length; i++) {
+            grid[i].addNeighbours();
+        }
+        updateInteval = setInterval(generateMaze, speed);
+    } else {
+        var temp = document.getElementById("felder").value;
+        window.location.reload(false);
+        document.getElementById("felder").value = temp;
     }
-    current = grid[0];
-
-
-    start = grid[0];
-    end = grid[grid.length - 1];
-    openSet.push(start);
-
-
-    for (var i = 0; i < grid.length; i++) {
-        grid[i].addNeighbours();
-    }
-    updateInteval = setInterval(generateMaze, speed);
-}else {
-   var temp = document.getElementById("felder").value;
-    window.location.reload(false); 
-    document.getElementById("felder").value = temp;
 }
-}
-
 function generateMaze() {
     if (stack.length != 0) {
         for (var i = 0; i < grid.length; i++) {
@@ -84,99 +145,130 @@ function generateMaze() {
         clearInterval(updateInteval);
         document.getElementById("startPath").disabled = false;
         document.getElementById("startMaze").innerHTML = "Neues Maze";
+        document.getElementById("startPlay").disabled = false;
         alreadyGenerated = true;
     }
 }
+
+
+//PATH
 function findPath() {
     var speed = document.getElementById("speed").value;
+    document.getElementById("startPlay").disabled = true;
     updateInteval = setInterval(generatePath, speed);
 }
 function generatePath() {
 
+    if (!alreadyGeneratedPath) {
+        for (var i = 0; i < grid.length; i++) {
+            grid[i].show();
+        }
+        if (openSet.length > 0) {
 
-    for (var i = 0; i < grid.length; i++) {
-        grid[i].show();
-    }
-    if (openSet.length > 0) {
+            var optimalF = 0;
 
-        var optimalF = 0;
-
-        for (var i = 0; i < openSet.length; i++) {
-            if (openSet[i].f < openSet[optimalF].f) { //wenn f(also die kosten) kleiner sind als der Optimale davor, wird der Optimale neue zugewiesen
-                optimalF = i;
+            for (var i = 0; i < openSet.length; i++) {
+                if (openSet[i].f < openSet[optimalF].f) { //wenn f(also die kosten) kleiner sind als der Optimale davor, wird der Optimale neue zugewiesen
+                    optimalF = i;
+                }
             }
-        }
-        current = openSet[optimalF]; //Current wird dem neuen Wert zugewiesen
+            current = openSet[optimalF]; //Current wird dem neuen Wert zugewiesen
 
-        if (openSet[optimalF] == end) { //Wenn das Element mit der besten F dass Ende ist FERTIG
+            if (openSet[optimalF] == end) { //Wenn das Element mit der besten F dass Ende ist FERTIG
+                //LÖSUNG
 
+                alreadyGeneratedPath = true;
+                clearInterval(updateInteval);
+                document.getElementById("startPath").disabled = true;
+                document.getElementById("startPlay").disabled = false;
+            }
 
-            clearInterval(updateInteval);
-            document.getElementById("startPath").disabled = true;
-        }
+            remove(openSet, current);
+            closedSet.push(current);
 
-        remove(openSet, current);
-        closedSet.push(current);
+            //Wir gucken uns die Nachbarn des Current an:
+            var nachbarn = current.pathNeighbors;
+            for (var i = 0; i < nachbarn.length; i++) { //für alle Nachbarn von Current
+                var nachbar = nachbarn[i];
 
-        //Wir gucken uns die Nachbarn des Current an:
-        var nachbarn = current.pathNeighbors;
-        for (var i = 0; i < nachbarn.length; i++) { //für alle Nachbarn von Current
-            var nachbar = nachbarn[i];
-
-            if (!closedSet.includes(nachbar) && checkWalls(current, nachbar)) { //wenn der Nachbar nicht bereits berechnet wurde...
-                //Kosten bis zum Current + 1
-                var tempG = current.g + 1
-                var newPath = false;
-                if (openSet.includes(nachbar)) { //wenn der nachbar schon im openset ist...
-                    if (tempG < nachbar.g) { //soll geguckt werden ob der G von dem Nachbar besser oder schlechter ist, falls er besser ist...
-                        nachbar.g = tempG; // neuen Wert zuweisen (es wurde ein neuer Pfad zu dem Punkt gefunden!)
+                if (!closedSet.includes(nachbar) && checkWalls(current, nachbar)) { //wenn der Nachbar nicht bereits berechnet wurde...
+                    //Kosten bis zum Current + 1
+                    var tempG = current.g + 1
+                    var newPath = false;
+                    if (openSet.includes(nachbar)) { //wenn der nachbar schon im openset ist...
+                        if (tempG < nachbar.g) { //soll geguckt werden ob der G von dem Nachbar besser oder schlechter ist, falls er besser ist...
+                            nachbar.g = tempG; // neuen Wert zuweisen (es wurde ein neuer Pfad zu dem Punkt gefunden!)
+                            newPath = true;
+                        } else {
+                            newPath = false;
+                        }
+                    } else { //wenn der Nachbar noch nicht im openSet ist...
+                        nachbar.g = tempG; //G setzen 
+                        openSet.push(nachbar); //Nachbar in das openSet legen
                         newPath = true;
-                    } else {
-                        newPath = false;
                     }
-                } else { //wenn der Nachbar noch nicht im openSet ist...
-                    nachbar.g = tempG; //G setzen 
-                    openSet.push(nachbar); //Nachbar in das openSet legen
-                    newPath = true;
-                }
-                if (newPath) {
-                    nachbar.h = heuristic(nachbar, end);
-                    nachbar.f = nachbar.h + nachbar.g;
-                    nachbar.pre = current;
+                    if (newPath) {
+                        nachbar.h = heuristic(nachbar, end);
+                        nachbar.f = nachbar.h + nachbar.g;
+                        nachbar.pre = current;
+                    }
                 }
             }
+
+
+
+        } else {
+            //keine Lösung
         }
+        path = [];
+        var temp = current;
+        path.push(temp);
 
+        while (temp.pre) {
+            path.push(temp.pre); //Dem Pfad wird dem Vorgänger von Temp übergeben(beim ersten mal ist das unser Current, also der letzte untersuchte)
+            temp = temp.pre; //Der Vorgänger wird der neue Temp -> geht bis zum Anfang zurück
+        }
+        if (weg) {
 
+            for (var i = 0; i < weg.length; i++) {
+                weg[i].showPath("#6100C9");
+            }
+        }
+        ctx.beginPath();
+        ctx.strokeStyle = "Crimson";
+        ctx.lineWidth = 10;
+        ctx.lineJoin = "round";
+        ctx.lineCap = "round";
+        ctx.moveTo(path[0].x * scale + scale / 2, path[0].y * scale + scale / 2);
+        for (var i = 0; i < path.length - 1; i++) {
+            ctx.lineTo(path[i + 1].x * scale + scale / 2, path[i + 1].y * scale + scale / 2)
+        }
+        ctx.stroke();
 
+        ctx.fillStyle = "green";
+        ctx.fillRect(0 * scale + scale * 0.25, 0 * scale + scale * 0.25, scale - scale * 0.5, scale - scale * 0.5);
     } else {
-        //keine Lösung
+        ctx.beginPath();
+        ctx.strokeStyle = "Crimson";
+        ctx.lineWidth = 10;
+        ctx.lineJoin = "round";
+        ctx.lineCap = "round";
+        ctx.moveTo(path[0].x * scale + scale / 2, path[0].y * scale + scale / 2);
+        for (var i = 0; i < path.length - 1; i++) {
+            ctx.lineTo(path[i + 1].x * scale + scale / 2, path[i + 1].y * scale + scale / 2)
+        }
+        ctx.stroke();
+
+        ctx.fillStyle = "green";
+        ctx.fillRect(0 * scale + scale * 0.25, 0 * scale + scale * 0.25, scale - scale * 0.5, scale - scale * 0.5);
+        alreadyGeneratedPath = true;
+        clearInterval(updateInteval);
+        document.getElementById("startPath").disabled = true;
+        document.getElementById("startPlay").disabled = false;
     }
-    var path = [];
-    var temp = current;
-    path.push(temp);
-
-    while (temp.pre) {
-        path.push(temp.pre); //Dem Pfad wird dem Vorgänger von Temp übergeben(beim ersten mal ist das unser Current, also der letzte untersuchte)
-        temp = temp.pre; //Der Vorgänger wird der neue Temp -> geht bis zum Anfang zurück
-    }
-
-
-    ctx.beginPath();
-    ctx.strokeStyle = "Crimson";
-    ctx.lineWidth = 10;
-    ctx.lineJoin = "round";
-    ctx.lineCap = "round";
-    ctx.moveTo(path[0].x * scale + scale / 2, path[0].y * scale + scale / 2);
-    for (var i = 0; i < path.length - 1; i++) {
-        ctx.lineTo(path[i + 1].x * scale + scale / 2, path[i + 1].y * scale + scale / 2)
-    }
-    ctx.stroke();
-
-    ctx.fillStyle = "green";
-    ctx.fillRect(0 * scale+scale*0.25, 0 * scale+scale*0.25, scale -scale*0.5, scale -scale*0.5);
 }
 
+//PATH
 function remove(array, element) {
     for (var i = array.length - 1; i >= 0; i--) {
         if (array[i] == element) {
@@ -184,17 +276,13 @@ function remove(array, element) {
         }
     }
 }
-
 function heuristic(a, b) {
     return Math.hypot(b.x - a.x, b.y - a.y)
     //return Math.abs(b.x - a.x) + Math.abs(b.y - a.y);
 }
-
-
 function checkWalls(a, b) {
     return moveRight(a, b) || moveLeft(a, b) || moveUp(a, b) || moveDown(a, b);
 }
-
 function moveRight(a, b) {
     var differenceX = a.x - b.x;
     if (differenceX == -1) {//bewegung von links nach rechts
@@ -228,7 +316,6 @@ function moveDown(a, b) {
     return false;
 }
 
-
 //MAZE
 function index(x, y) {
     if (x < 0 || y < 0 || x > columns - 1 || y > rows - 1) {
@@ -236,7 +323,6 @@ function index(x, y) {
     }
     return x + y * columns;
 }
-//MAZE
 function removeWalls(a, b) {
     var differenceX = a.x - b.x;
     if (differenceX == 1) {//bewegung von rechts nach links

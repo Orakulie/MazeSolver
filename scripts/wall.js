@@ -103,6 +103,37 @@ function Wall(x, y) {
         var y = this.y * scale;
         ctx.fillStyle = c;
         ctx.fillRect(x,y,scale,scale);
+        if (this.walls[0]) {
+            ctx.lineWidth = scale / 50;
+            ctx.beginPath();
+            ctx.moveTo(x + scale, y);
+            ctx.lineTo(x + scale, y + scale);
+            ctx.stroke();
+        }
+        //LINKS
+        if (this.walls[1]) {
+            ctx.beginPath();
+            ctx.lineWidth = scale / 50;
+            ctx.moveTo(x, y + scale);
+            ctx.lineTo(x, y);
+            ctx.stroke();
+        }
+        //UNTEN
+        if (this.walls[2]) {
+            ctx.beginPath();
+            ctx.lineWidth = scale / 50;
+            ctx.moveTo(x + scale, y + scale);
+            ctx.lineTo(x, y + scale);
+            ctx.stroke();
+        }
+        //OBEN
+        if (this.walls[3]) {
+            ctx.beginPath();
+            ctx.lineWidth = scale / 50;
+            ctx.moveTo(x, y);
+            ctx.lineTo(x + scale, y);
+            ctx.stroke();
+        }
     }
 
     this.addNeighbours = function () {

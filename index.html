@@ -7,15 +7,14 @@
     <meta http-equiv="X-UA-Compatible" content="ie=edge">
     <title>Maze</title>
     <style>
-    .button {
-        background-color: chocolate;
-        border: none;
-        color: white;
-        font-size: 20px;
-        padding: 10px 10px;
-    }
-    
-    
+        .button {
+            background-color: chocolate;
+            border: none;
+            color: white;
+            font-size: 20px;
+            padding: 10px 10px;
+            margin-right: 20px;
+        }
     </style>
 </head>
 
@@ -25,19 +24,30 @@
     </div>
     <div class="controls"
         style="position: absolute; top:30px; left:18px; padding:0px 5px;font-size:18px;border-width: 3px; border-style: solid; background-color: brown; color: white;">
+
+
         <h2 style="font-family: Arial, Helvetica, sans-serif;">Labyrinth</h2>
-        <id="text" style="font-family: Arial, Helvetica, sans-serif;">Anzahl der zu generierenden Felder:</id> <input id="felder" value="100" style="background-color: chocolate; color: white; padding: 5px 5px; border: none;"><br><br>
-        <button id="startMaze" class ="button"type="button" onclick="generate()">Generieren</button>
-        <h2 style="font-family: Arial, Helvetica, sans-serif;">Wegfindung</h2 Arial, Helvetica, sans-serif;">
-        <button id="startPath" class= "button" type="button" onclick="findPath()">Generieren</button><br>
-        <p style="font-family: Arial, Helvetica, sans-serif;">Geschwindigkeit (niedrig = schneller):<p><input type="range" min="1" max="200" value="1" id="speed"
-            style="width:100%;">
+        <id="text" style="font-family: Arial, Helvetica, sans-serif;">Anzahl der zu generierenden Felder:</id> <input
+                id="felder" value="100"
+                style="background-color: chocolate; color: white; padding: 5px 5px; border: none;"><br><br>
+            <button id="startMaze" class="button" type="button" onclick="generate()">Generieren</button>
+
+
+            <h2 style="font-family: Arial, Helvetica, sans-serif;">Selber lösen</h2 Arial, Helvetica, sans-serif;">
+            <button id="startPlay" class="button" type="button" onclick="play()">Spielen</button><button id="startSurrender" class="button" type="button" onclick="surrender()">Aufgeben</button><br><br>
+            <p style="font-family: Arial, Helvetica, sans-serif;">
+
+
+                <h2 style="font-family: Arial, Helvetica, sans-serif;">Wegfindung</h2 Arial, Helvetica, sans-serif;">
+                <button id="startPath" class="button" type="button" onclick="findPath()">Generieren</button><br>
+                <p style="font-family: Arial, Helvetica, sans-serif;">Geschwindigkeit (niedrig = schneller):<input
+                        type="range" min="1" max="200" value="1" id="speed" style="width:100%;">
 
     </div>
-
-
     <script type="text/javascript" src="scripts/wall.js"></script>
     <script type="text/javascript" src="scripts/maze.js"></script>
+    #
+    <script type="text/javascript" src="scripts/player.js"></script>
 </body>
 
 </html>

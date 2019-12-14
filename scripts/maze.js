@@ -89,6 +89,7 @@ function updatePlayer() {
 
 //MAZE
 function generate() {
+    document.getElementById("startMaze").disabled = true;
     var speed = document.getElementById("speed").value;
     if (alreadyGenerated == false) {
         felder = document.getElementById("felder").value;
@@ -152,7 +153,8 @@ function generateMaze() {
         document.getElementById("startPlay").disabled = false;
         alreadyGenerated = true;
         for (var y = 0; y < parseInt(felder) / 20; y++) {
-            var i = Math.floor(Math.random() * grid.length - 1);
+            var i = Math.floor(Math.random() * (grid.length - 1));
+            console.log(i);
             if (grid[index(grid[i].x + 1, grid[i].y)] && grid[index(grid[i].x, grid[i].y + 1)]) {
                 removeWalls(grid[i], grid[index(grid[i].x + 1, grid[i].y)])
                 removeWalls(grid[i], grid[index(grid[i].x, grid[i].y + 1)]);
@@ -161,6 +163,7 @@ function generateMaze() {
         for (var i = 0; i < grid.length; i++) {
             grid[i].show();
         }
+        document.getElementById("startMaze").disabled = false;
     }
 }
 

@@ -7,6 +7,8 @@ var current;
 var stack = [1];
 var next;
 var alreadyGenerated = false;
+var kreuzung = 0;
+var felder;
 //MAZE
 
 //PATH
@@ -16,7 +18,6 @@ var start;
 var end;
 var path = [];
 var alreadyGeneratedPath = false;
-
 //PLAYER
 var player;
 var weg = [];
@@ -90,7 +91,7 @@ function updatePlayer() {
 function generate() {
     var speed = document.getElementById("speed").value;
     if (alreadyGenerated == false) {
-        var felder = document.getElementById("felder").value;
+        felder = document.getElementById("felder").value;
         scale = Math.floor((canvas.height * canvas.width) / felder / 100);
         rows = Math.floor(canvas.height / scale);
         columns = Math.floor(canvas.width / scale);
@@ -104,7 +105,10 @@ function generate() {
             }
         }
         current = grid[0];
-
+        current.walls[0] = false;
+        current.walls[2] = false;
+        grid[index(0, 1)].walls[3] = false;
+        grid[1].walls[1] = false;
 
         start = grid[0];
         end = grid[grid.length - 1];
@@ -147,8 +151,19 @@ function generateMaze() {
         document.getElementById("startMaze").innerHTML = "Neues Maze";
         document.getElementById("startPlay").disabled = false;
         alreadyGenerated = true;
+        for (var y = 0; y < parseInt(felder) / 20; y++) {
+            var i = Math.floor(Math.random() * grid.length - 1);
+            if (grid[index(grid[i].x + 1, grid[i].y)] && grid[index(grid[i].x, grid[i].y + 1)]) {
+                removeWalls(grid[i], grid[index(grid[i].x + 1, grid[i].y)])
+                removeWalls(grid[i], grid[index(grid[i].x, grid[i].y + 1)]);
+            }
+        }       
+        for (var i = 0; i < grid.length; i++) {
+            grid[i].show();
+        }
     }
 }
+
 
 
 //PATH

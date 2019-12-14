@@ -152,7 +152,7 @@ function generateMaze() {
         document.getElementById("startMaze").innerHTML = "Neues Maze";
         document.getElementById("startPlay").disabled = false;
         alreadyGenerated = true;
-        for (var y = 0; y < parseInt(felder) / 20; y++) {
+        for (var y = 0; y < parseInt(felder) / 15; y++) {
             var i = Math.floor(Math.random() * (grid.length - 1));
             if (grid[index(grid[i].x + 1, grid[i].y)] && grid[index(grid[i].x, grid[i].y + 1)]) {
                 removeWalls(grid[i], grid[index(grid[i].x + 1, grid[i].y)])

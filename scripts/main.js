@@ -4,15 +4,77 @@ const ctx = canvas.getContext("2d");
 //Geschwindigkeit der Update Funktionen
 var speed = 1;
 
+var laden = false;
+
 disableButton("startPath", true);
 disableButton("startPlay", true);
 disableButton("startSurrender", true);
 
-//Wenn bereits ein Wert für "felder" im Cache hinterlegt wurde, soll direkt mit dem Wert ein Maze generiert werden
-if (localStorage["felder"]) {
-    document.getElementById("felder").value = localStorage["felder"];
-    generate();
+
+if (localStorage["laden"] == "true" && localStorage["grid"]) {
+    grid = JSON.parse(localStorage["grid"]);
+    felder = grid.length;
+
+    rows = columns = Math.floor(Math.sqrt(felder));
+    scale = Math.floor(canvas.height / rows);
+    canvas.width = columns * scale;
+    canvas.height = rows * scale;
+
+    for (var i = 0; i < grid.length; i++) {
+        let tempWalls = grid[i].walls;
+
+        grid[i] = new Wall(grid[i].x, grid[i].y);
+        grid[i].walls = tempWalls;
+        grid[i].visited = true;
+        grid[i].show();
+    }
+    current = grid[0];
+    //Start Feld, oben links
+    start = grid[0];
+    last = start;
+    //End Feld, unten rechts
+    end = grid[grid.length - 1];
+
+    start.highlightColor("green");
+    end.highlightColor("crimson");
+    alreadyGenerated = true;
+
+    laden = true;
+    localStorage["laden"] = false;
+    disableButton("startPath", false);
+    disableButton("startPlay", false);
+} else {
+    laden = false;
 }
+
+//Wenn bereits ein Wert für "felder" im Cache hinterlegt wurde, soll direkt mit dem Wert ein Maze generiert werden
+function saveLoad() {
+    if (confirm("Willst du ein Maze laden?")) {
+        let temp = prompt("Füge den Text hier ein")
+        if (temp != null) {
+            localStorage["grid"] = temp;
+            localStorage["laden"] = "true";
+        }
+        window.location.reload(false);
+
+    } else {
+        var dummy = document.createElement("textarea");
+        document.body.appendChild(dummy);
+        dummy.value = JSON.stringify(grid);
+        dummy.select();
+        document.execCommand("copy");
+        document.body.removeChild(dummy);
+        alert("Maze wurde in deine Zwischenablage kopiert!")
+    }
+}
+if (localStorage["felder"]) {
+    if (!laden) {
+        console.log("test");
+        document.getElementById("felder").value = localStorage["felder"];
+        generate();
+    }
+}
+
 
 //Start von der Maze Generation
 function generate() {
@@ -127,7 +189,7 @@ function findPath() {
 
     //Startet update Funktion von Path
     updateInteval = setInterval(generatePath, speed);
-    timer = setInterval(timer,1000);
+    timer = setInterval(timer, 1000);
 }
 
 

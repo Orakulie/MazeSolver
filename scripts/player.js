@@ -1,3 +1,10 @@
+var player;
+var weg = [];
+var keyPresses = {};
+var nanoTime = 0;
+var time = 0;
+var updateInteval;
+
 function Player() {
     this.x = 0;
     this.y = 0;
@@ -11,53 +18,15 @@ function Player() {
     this.timesMoved = 1;
 
 
-
+    //Zeigt den Spieler
     this.show = function () {
-        var x = this.x * scale;
-        var y = this.y * scale;
-
-        ctx.fillStyle = "yellow";
-        /* ctx.beginPath();
-        ctx.arc(this.x+0.5*scale,this.y+0.5*scale,scale/4,0,360);
-        ctx.fill(); */
-        //ctx.fillRect(this.x + 0.25 * scale, this.y + 0.25 * scale, scale / 2, scale / 2);
-        ctx.fillRect(x + scale * 0.25, y + scale * 0.25, scale / 2, scale / 2);
+        grid[index(this.x, this.y)].highlightColor("yellow");
     }
+
+    //Update function
     this.update = function () {
         var i = index(this.x, this.y);
 
-        /* if (!grid[i].walls[0]) {//NACH RECHTS
-            if (this.xSpeed > 0) {
-                this.x += this.xSpeed;
-                if (!weg.includes(grid[i])) {
-                    weg.push(grid[i]);
-                }
-            }
-        }
-        if (!grid[i].walls[1]) {//NACH LINKS
-            if (this.xSpeed < 0) {
-                this.x += this.xSpeed;
-                if (!weg.includes(grid[i])) {
-                    weg.push(grid[i]);
-                }
-            }
-        }
-        if (!grid[i].walls[2]) { //NACH UNTEN
-            if (this.ySpeed > 0) {
-                this.y += this.ySpeed;
-                if (!weg.includes(grid[i])) {
-                    weg.push(grid[i]);
-                }
-            }
-        }
-        if (!grid[i].walls[3]) { //NACH OBEN
-            if (this.ySpeed < 0) {
-                this.y += this.ySpeed;
-                if (!weg.includes(grid[i])) {
-                    weg.push(grid[i]);
-                }
-            }
-        } */
         if (!grid[i].walls[0]) {//NACH RECHTS
             if (keyPresses.d) {
                 this.x += 1;
@@ -99,30 +68,51 @@ function Player() {
             }
         }
     }
-/*     this.changeDirection = function (dir) {
-        switch (dir) {
-            case "w":
-                this.xSpeed = 0;
-                this.ySpeed = -1;
-                break;
-            case "s":
-                this.xSpeed = 0;
-                this.ySpeed = 1;
-                break;
-            case "d":
-                this.xSpeed = 1;
-                this.ySpeed = 0;
-                break;
-            case "a":
-                this.xSpeed = -1;
-                this.ySpeed = 0;
-                break;
-        }
-    } */
+
+    //Stoppt den Spieler
     this.stop = function () {
         this.xSpeed = 0;
         this.ySpeed = 0;
     }
 
+}
 
+//Update function
+function updatePlayer() {
+    for (var i = 0; i < grid.length; i++) {
+        grid[i].show();
+    }
+
+    start.highlightColor("green");
+    end.highlightColor("crimson");
+    player.update();
+    player.show();
+
+    if (player.timesMoved < 10) {
+        document.getElementById("amountMoved").innerHTML = "Zurückgelegte Felder: " + "0" + player.timesMoved + " (" + (player.timesMoved - weg.length) + " Felder zurück gegangen)";
+    } else {
+        document.getElementById("amountMoved").innerHTML = "Zurückgelegte Felder: " + player.timesMoved + " (" + (player.timesMoved - weg.length) + " Felder zurück gegangen)";
+    }
+    nanoTime++;
+    if (nanoTime >= 10) {
+        time++;
+        nanoTime = 0;
+        if (time < 10) {
+            document.getElementById("time").innerHTML = "Verstrichene Zeit: " + "0" + time + "s";
+        } else {
+            document.getElementById("time").innerHTML = "Verstrichene Zeit: " + time + "s";
+        }
+    }
+
+    if (player.x == end.x && player.y == end.y) {
+        clearInterval(updateInteval);
+        disableButton("startPath", false);
+        
+        for (var i = 0; i < weg.length; i++) {
+            weg[i].showPath("#6100C9");
+        }
+        start.highlightColor("green");
+        end.highlightColor("crimson");
+
+    }
 }

@@ -8,7 +8,7 @@ function Player() {
 
     //Weg
     weg = [grid[0]];
-    this.timesMoved = 0;
+    this.timesMoved = 1;
 
 
 
@@ -61,6 +61,7 @@ function Player() {
         if (!grid[i].walls[0]) {//NACH RECHTS
             if (keyPresses.d) {
                 this.x += 1;
+                i = index(this.x, this.y);
                 this.timesMoved++;
                 if (!weg.includes(grid[i])) {
                     weg.push(grid[i]);
@@ -70,6 +71,7 @@ function Player() {
         if (!grid[i].walls[1]) {//NACH LINKS
             if (keyPresses.a) {
                 this.x += -1;
+                i = index(this.x, this.y);
                 this.timesMoved++;
                 if (!weg.includes(grid[i])) {
                     weg.push(grid[i]);
@@ -79,6 +81,7 @@ function Player() {
         if (!grid[i].walls[2]) { //NACH UNTEN
             if (keyPresses.s) {
                 this.y += 1;
+                i = index(this.x, this.y);
                 this.timesMoved++;
                 if (!weg.includes(grid[i])) {
                     weg.push(grid[i]);
@@ -88,6 +91,7 @@ function Player() {
         if (!grid[i].walls[3]) { //NACH OBEN
             if (keyPresses.w) {
                 this.y += -1;
+                i = index(this.x, this.y);
                 this.timesMoved++;
                 if (!weg.includes(grid[i])) {
                     weg.push(grid[i]);

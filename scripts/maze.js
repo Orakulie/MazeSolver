@@ -33,7 +33,7 @@ document.getElementById("startPlay").disabled = true;
 document.getElementById("startSurrender").disabled = true;
 
 
-if(localStorage["felder"]) {
+if (localStorage["felder"]) {
     document.getElementById("felder").value = localStorage["felder"];
     generate();
 }
@@ -54,7 +54,9 @@ function surrender() {
     ctx.fillStyle = "green";
     ctx.fillRect(0 * scale + scale * 0.25, 0 * scale + scale * 0.25, scale - scale * 0.5, scale - scale * 0.5);
     document.getElementById("startPath").disabled = false;
-    weg.push(grid[index(player.x, player.y)]);
+    /*     if (!grid.includes(grid[index(player.x, player.y)])) {
+            weg.push(grid[index(player.x, player.y)]);
+        } */
     for (var i = 0; i < weg.length; i++) {
         weg[i].showPath("#6100C9");
     }
@@ -85,9 +87,9 @@ function updatePlayer() {
     player.show();
 
     if (player.timesMoved < 10) {
-        document.getElementById("amountMoved").innerHTML = "Zurückgelegte Felder: " + "0" + player.timesMoved;
+        document.getElementById("amountMoved").innerHTML = "Zurückgelegte Felder: " + "0" + player.timesMoved+" ("+(player.timesMoved-weg.length)+" Felder zurück gegangen)";
     } else {
-        document.getElementById("amountMoved").innerHTML = "Zurückgelegte Felder: " + player.timesMoved;
+        document.getElementById("amountMoved").innerHTML = "Zurückgelegte Felder: " + player.timesMoved+" ("+(player.timesMoved-weg.length)+" Felder zurück gegangen)";
     }
     nanoTime++;
     if (nanoTime >= 10) {
@@ -104,8 +106,6 @@ function updatePlayer() {
         clearInterval(updateInteval);
         end.show();
         document.getElementById("startPath").disabled = false;
-
-        weg.push(end);
         for (var i = 0; i < weg.length; i++) {
             weg[i].showPath("#6100C9");
         }
@@ -151,7 +151,7 @@ function generate() {
 
     } else {
         var temp = document.getElementById("felder").value;
-        localStorage["felder"] = ""+temp;
+        localStorage["felder"] = "" + temp;
         window.location.reload(false);
         document.getElementById("felder").value = temp;
     }
@@ -208,149 +208,116 @@ function findPath() {
     updateInteval = setInterval(generatePath, speed);
 }
 function generatePath() {
+    for (var i = 0; i < grid.length; i++) {
+        grid[i].show();
+    }
+    if (openSet.length > 0) {
 
-    if (!alreadyGeneratedPath) {
-        for (var i = 0; i < grid.length; i++) {
-            grid[i].show();
+        var optimalF = 0;
+
+        for (var i = 0; i < openSet.length; i++) {
+            if (openSet[i].f < openSet[optimalF].f) { //wenn f(also die kosten) kleiner sind als der Optimale davor, wird der Optimale neue zugewiesen
+                optimalF = i;
+            }
         }
-        if (openSet.length > 0) {
+        current = openSet[optimalF]; //Current wird dem neuen Wert zugewiesen
 
-            var optimalF = 0;
+        if (openSet[optimalF] == end) { //Wenn das Element mit der besten F dass Ende ist FERTIG
+            //LÖSUNG
+            document.getElementById("rightMoves").innerHTML = "Kürzester Weg: " + (path.length+1) + " Felder, dein Weg war " + Math.floor(100 - ((path.length+1) / (weg.length) * 100)) + "% schlechter";
+            alreadyGeneratedPath = true;
+            clearInterval(updateInteval);
+            document.getElementById("startPath").disabled = true;
+            document.getElementById("startPlay").disabled = true;
+        }
 
-            for (var i = 0; i < openSet.length; i++) {
-                if (openSet[i].f < openSet[optimalF].f) { //wenn f(also die kosten) kleiner sind als der Optimale davor, wird der Optimale neue zugewiesen
-                    optimalF = i;
-                }
-            }
-            current = openSet[optimalF]; //Current wird dem neuen Wert zugewiesen
+        remove(openSet, current);
+        closedSet.push(current);
 
-            if (openSet[optimalF] == end) { //Wenn das Element mit der besten F dass Ende ist FERTIG
-                //LÖSUNG
-                document.getElementById("rightMoves").innerHTML = "Kürzester Weg: " + path.length + " Felder, dein Weg war " + Math.floor(100 - (path.length / (weg.length - 1) * 100)) + "% schlechter";
-                alreadyGeneratedPath = true;
-                clearInterval(updateInteval);
-                document.getElementById("startPath").disabled = true;
-                document.getElementById("startPlay").disabled = false;
-            }
+        //Wir gucken uns die Nachbarn des Current an:
+        var nachbarn = current.pathNeighbors;
+        for (var i = 0; i < nachbarn.length; i++) { //für alle Nachbarn von Current
+            var nachbar = nachbarn[i];
 
-            remove(openSet, current);
-            closedSet.push(current);
-
-            //Wir gucken uns die Nachbarn des Current an:
-            var nachbarn = current.pathNeighbors;
-            for (var i = 0; i < nachbarn.length; i++) { //für alle Nachbarn von Current
-                var nachbar = nachbarn[i];
-
-                if (!closedSet.includes(nachbar) && checkWalls(current, nachbar)) { //wenn der Nachbar nicht bereits berechnet wurde...
-                    //Kosten bis zum Current + 1
-                    var tempG = current.g + 1
-                    var newPath = false;
-                    if (openSet.includes(nachbar)) { //wenn der nachbar schon im openset ist...
-                        if (tempG < nachbar.g) { //soll geguckt werden ob der G von dem Nachbar besser oder schlechter ist, falls er besser ist...
-                            nachbar.g = tempG; // neuen Wert zuweisen (es wurde ein neuer Pfad zu dem Punkt gefunden!)
-                            newPath = true;
-                        } else {
-                            newPath = false;
-                        }
-                    } else { //wenn der Nachbar noch nicht im openSet ist...
-                        nachbar.g = tempG; //G setzen 
-                        openSet.push(nachbar); //Nachbar in das openSet legen
+            if (!closedSet.includes(nachbar) && checkWalls(current, nachbar)) { //wenn der Nachbar nicht bereits berechnet wurde...
+                //Kosten bis zum Current + 1
+                var tempG = current.g + 1
+                var newPath = false;
+                if (openSet.includes(nachbar)) { //wenn der nachbar schon im openset ist...
+                    if (tempG < nachbar.g) { //soll geguckt werden ob der G von dem Nachbar besser oder schlechter ist, falls er besser ist...
+                        nachbar.g = tempG; // neuen Wert zuweisen (es wurde ein neuer Pfad zu dem Punkt gefunden!)
                         newPath = true;
+                    } else {
+                        newPath = false;
                     }
-                    if (newPath) {
-                        nachbar.h = heuristic(nachbar, end);
-                        nachbar.f = nachbar.h + nachbar.g;
-                        nachbar.pre = current;
-                    }
+                } else { //wenn der Nachbar noch nicht im openSet ist...
+                    nachbar.g = tempG; //G setzen 
+                    openSet.push(nachbar); //Nachbar in das openSet legen
+                    newPath = true;
                 }
-            }
-
-
-
-        } else {
-            //keine Lösung
-        }
-        path = [];
-        var temp = current;
-        path.push(temp);
-
-        while (temp.pre) {
-            path.push(temp.pre); //Dem Pfad wird dem Vorgänger von Temp übergeben(beim ersten mal ist das unser Current, also der letzte untersuchte)
-            temp = temp.pre; //Der Vorgänger wird der neue Temp -> geht bis zum Anfang zurück
-        }
-        if (weg) {
-
-            for (var i = 0; i < weg.length; i++) {
-                weg[i].showPath("#6100C9");
-            }
-        }
-        for (var i = 1; i < weg.length; i++) {
-            if (!path.includes(weg[i])) {
-                if (path.includes(weg[i - 1])) {
-                    ctx.fillStyle = "crimson";
-                    ctx.beginPath();
-                    ctx.arc((weg[i - 1].x * scale) + (scale / 2), (weg[i - 1].y * scale) + (scale / 2), scale / 4, 0, 360);
-                    ctx.fill();
-                }
-            } else {
-                if (!path.includes(weg[i - 1])) {
-                    ctx.fillStyle = "crimson";
-                    ctx.beginPath();
-                    ctx.arc((weg[i].x * scale) + (scale / 2), (weg[i].y * scale) + (scale / 2), scale / 4, 0, 360);
-                    ctx.fill();
+                if (newPath) {
+                    nachbar.h = heuristic(nachbar, end);
+                    nachbar.f = nachbar.h + nachbar.g;
+                    nachbar.pre = current;
                 }
             }
         }
-        ctx.beginPath();
-        ctx.strokeStyle = "Crimson";
-        ctx.lineWidth = scale / 10;
-        ctx.lineJoin = "round";
-        ctx.lineCap = "round";
-        ctx.moveTo(path[0].x * scale + scale / 2, path[0].y * scale + scale / 2);
-        for (var i = 0; i < path.length - 1; i++) {
-            ctx.lineTo(path[i + 1].x * scale + scale / 2, path[i + 1].y * scale + scale / 2)
-        }
-        ctx.stroke();
 
-        ctx.fillStyle = "green";
-        ctx.fillRect(0 * scale + scale * 0.25, 0 * scale + scale * 0.25, scale - scale * 0.5, scale - scale * 0.5);
+
 
     } else {
-        for (var i = 1; i < weg.length; i++) {
-            if (!path.includes(weg[i])) {
-                if (path.includes(weg[i - 1])) {
-                    ctx.fillStyle = "crimson";
-                    ctx.beginPath();
-                    ctx.arc((weg[i - 1].x * scale) + (scale / 2), (weg[i - 1].y * scale) + (scale / 2), scale / 4, 0, 360);
-                    ctx.fill();
-                }
-            } else {
-                if (!path.includes(weg[i - 1])) {
-                    ctx.fillStyle = "crimson";
-                    ctx.beginPath();
-                    ctx.arc((weg[i].x * scale) + (scale / 2), (weg[i].y * scale) + (scale / 2), scale / 4, 0, 360);
-                    ctx.fill();
-                }
+        //keine Lösung
+    }
+    path = [];
+    var temp = current;
+    path.push(temp);
+
+    while (temp.pre) {
+        path.push(temp.pre); //Dem Pfad wird dem Vorgänger von Temp übergeben(beim ersten mal ist das unser Current, also der letzte untersuchte)
+        temp = temp.pre; //Der Vorgänger wird der neue Temp -> geht bis zum Anfang zurück
+    }
+    if (weg) {
+
+        for (var i = 0; i < weg.length; i++) {
+            weg[i].showPath("#6100C9");
+        }
+    }
+    for (var i = 1; i < weg.length; i++) {
+        if (!path.includes(weg[i])) {
+            if (path.includes(weg[i - 1])) {
+                ctx.fillStyle = "crimson";
+                ctx.beginPath();
+                ctx.arc((weg[i - 1].x * scale) + (scale / 2), (weg[i - 1].y * scale) + (scale / 2), scale / 4, 0, 360);
+                ctx.fill();
+            }
+        } else {
+            if (!path.includes(weg[i - 1])) {
+                ctx.fillStyle = "crimson";
+                ctx.beginPath();
+                ctx.arc((weg[i].x * scale) + (scale / 2), (weg[i].y * scale) + (scale / 2), scale / 4, 0, 360);
+                ctx.fill();
             }
         }
-        ctx.beginPath();
-        ctx.strokeStyle = "Crimson";
-        ctx.lineWidth = 10;
-        ctx.lineJoin = "round";
-        ctx.lineCap = "round";
-        ctx.moveTo(path[0].x * scale + scale / 2, path[0].y * scale + scale / 2);
-        for (var i = 0; i < path.length - 1; i++) {
-            ctx.lineTo(path[i + 1].x * scale + scale / 2, path[i + 1].y * scale + scale / 2)
-        }
-        ctx.stroke();
-
-        ctx.fillStyle = "green";
-        ctx.fillRect(0 * scale + scale * 0.25, 0 * scale + scale * 0.25, scale - scale * 0.5, scale - scale * 0.5);
-        alreadyGeneratedPath = true;
-        clearInterval(updateInteval);
-        document.getElementById("startPath").disabled = true;
-        document.getElementById("startPlay").disabled = false;
     }
+    ctx.beginPath();
+    ctx.strokeStyle = "Crimson";
+    ctx.lineWidth = scale / 10;
+    ctx.lineJoin = "round";
+    ctx.lineCap = "round";
+    ctx.moveTo(path[0].x * scale + scale / 2, path[0].y * scale + scale / 2);
+    for (var i = 0; i < path.length - 1; i++) {
+        ctx.lineTo(path[i + 1].x * scale + scale / 2, path[i + 1].y * scale + scale / 2)
+    }
+    ctx.stroke();
+
+    ctx.fillStyle = "green";
+    ctx.fillRect(0 * scale + scale * 0.25, 0 * scale + scale * 0.25, scale - scale * 0.5, scale - scale * 0.5);
+
+    ctx.fillStyle = "Crimson";
+    ctx.fillRect(end.x * scale + scale * 0.25, end.y * scale + scale * 0.25, scale - scale * 0.5, scale - scale * 0.5);
+
+
+
 }
 
 //PATH

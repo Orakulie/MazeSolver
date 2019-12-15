@@ -70,7 +70,7 @@ function generateMaze() {
         //Setzt alreadyGenerated auf "true", damit beim nächstem Klick ein neues Maze generiert wird
 
         //Es werden (felder/15) Kreuzungen generiert
-        for (var y = 0; y < parseInt(felder) / 5; y++) {
+        for (var y = 0; y < parseInt(felder) / 7; y++) {
             //Wählt ein zufälliges Feld aus
             let i = Math.floor(Math.random() * (grid.length - 1));
 

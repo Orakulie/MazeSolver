@@ -13,10 +13,21 @@ var end;
 //Path Array
 var path = [];
 
+var pathTime = 0;
+var pathTimeNano = 0;
 
 //PATH
 
+function timer() {
+    pathTime++;
+}
+
 function generatePath() {
+    if (pathTime < 10) {
+        document.getElementById("time").innerHTML = "Verstrichene Zeit: " + "0" + time + "s || 0" + pathTime + "s";
+    } else {
+        document.getElementById("time").innerHTML = "Verstrichene Zeit: " + time + "s || " + pathTime + "s";
+    }
 
     for (var i = 0; i < grid.length; i++) {
         grid[i].show();
@@ -45,6 +56,7 @@ function generatePath() {
 
             //Update function wird gestoppt
             clearInterval(updateInteval);
+            clearInterval(timer);
         }
 
         //Current wird aus dem OpenSet gelöscht, weil er bereits berechnet wurde
@@ -128,7 +140,7 @@ function generatePath() {
     if (weg) {
         for (var i = 0; i < weg.length; i++) {
             weg[i].showPath("#6100C9");
-            if (!path.includes(weg[i+1])) {
+            if (!path.includes(weg[i + 1])) {
                 if (path.includes(weg[i])) {
                     ctx.fillStyle = "crimson";
                     ctx.beginPath();
@@ -139,7 +151,7 @@ function generatePath() {
                 if (!path.includes(weg[i])) {
                     ctx.fillStyle = "crimson";
                     ctx.beginPath();
-                    ctx.arc((weg[i+1].x * scale) + (scale / 2), (weg[i+1].y * scale) + (scale / 2), scale / 4, 0, 360);
+                    ctx.arc((weg[i + 1].x * scale) + (scale / 2), (weg[i + 1].y * scale) + (scale / 2), scale / 4, 0, 360);
                     ctx.fill();
                 }
             }
@@ -149,7 +161,7 @@ function generatePath() {
     //Zeichnet den Optimalen Pfad
     ctx.beginPath();
     ctx.strokeStyle = "Crimson";
-    ctx.lineWidth = scale / 8;
+    ctx.lineWidth = scale / 5;
     ctx.lineJoin = "round";
     ctx.lineCap = "round";
     ctx.moveTo(path[0].x * scale + scale / 2, path[0].y * scale + scale / 2);

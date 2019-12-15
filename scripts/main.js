@@ -127,6 +127,7 @@ function findPath() {
 
     //Startet update Funktion von Path
     updateInteval = setInterval(generatePath, speed);
+    timer = setInterval(timer,1000);
 }
 
 

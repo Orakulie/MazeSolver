@@ -60,7 +60,16 @@ function saveLoad() {
     } else {
         var dummy = document.createElement("textarea");
         document.body.appendChild(dummy);
-        dummy.value = JSON.stringify(grid);
+        var shortGrid = [];
+        for (var i = 0; i < grid.length; i++) {
+            shortGrid[i] = {x: 0, y: 0, walls: []};
+            shortGrid[i].x = grid[i].x;
+            shortGrid[i].y = grid[i].y;
+            shortGrid[i].walls = grid[i].walls
+        }
+        console.log(shortGrid);
+        console.log(grid);
+        dummy.value = JSON.stringify(shortGrid);
         dummy.select();
         document.execCommand("copy");
         document.body.removeChild(dummy);
@@ -69,7 +78,6 @@ function saveLoad() {
 }
 if (localStorage["felder"]) {
     if (!laden) {
-        console.log("test");
         document.getElementById("felder").value = localStorage["felder"];
         generate();
     }

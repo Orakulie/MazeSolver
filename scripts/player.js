@@ -3,7 +3,14 @@ function Player() {
     this.y = 0;
     this.xSpeed = 0;
     this.ySpeed = 0;
+
+
+
+    //Weg
     weg = [grid[0]];
+    this.timesMoved = 0;
+
+
 
     this.show = function () {
         var x = this.x * scale;
@@ -17,10 +24,9 @@ function Player() {
         ctx.fillRect(x + scale * 0.25, y + scale * 0.25, scale / 2, scale / 2);
     }
     this.update = function () {
-
         var i = index(this.x, this.y);
 
-        if (!grid[i].walls[0]) {//NACH RECHTS
+        /* if (!grid[i].walls[0]) {//NACH RECHTS
             if (this.xSpeed > 0) {
                 this.x += this.xSpeed;
                 if (!weg.includes(grid[i])) {
@@ -51,9 +57,45 @@ function Player() {
                     weg.push(grid[i]);
                 }
             }
+        } */
+        if (!grid[i].walls[0]) {//NACH RECHTS
+            if (keyPresses.d) {
+                this.x += 1;
+                this.timesMoved++;
+                if (!weg.includes(grid[i])) {
+                    weg.push(grid[i]);
+                }
+            }
+        }
+        if (!grid[i].walls[1]) {//NACH LINKS
+            if (keyPresses.a) {
+                this.x += -1;
+                this.timesMoved++;
+                if (!weg.includes(grid[i])) {
+                    weg.push(grid[i]);
+                }
+            }
+        }
+        if (!grid[i].walls[2]) { //NACH UNTEN
+            if (keyPresses.s) {
+                this.y += 1;
+                this.timesMoved++;
+                if (!weg.includes(grid[i])) {
+                    weg.push(grid[i]);
+                }
+            }
+        }
+        if (!grid[i].walls[3]) { //NACH OBEN
+            if (keyPresses.w) {
+                this.y += -1;
+                this.timesMoved++;
+                if (!weg.includes(grid[i])) {
+                    weg.push(grid[i]);
+                }
+            }
         }
     }
-    this.changeDirection = function (dir) {
+/*     this.changeDirection = function (dir) {
         switch (dir) {
             case "w":
                 this.xSpeed = 0;
@@ -72,7 +114,7 @@ function Player() {
                 this.ySpeed = 0;
                 break;
         }
-    }
+    } */
     this.stop = function () {
         this.xSpeed = 0;
         this.ySpeed = 0;

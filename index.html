@@ -15,38 +15,112 @@
             padding: 10px 10px;
             margin-right: 20px;
         }
+
+        #felder {
+            background-color: chocolate;
+            color: white;
+            padding: 5px 5px;
+            border: none;
+        }
+
+        #controls {
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            padding-left: 10px;
+            padding-bottom: 10px;
+            width: 475px;
+            font-size: 18px;
+            border-width: 3px;
+            border-style: solid;
+            background-color: brown;
+            color: white;
+        }
+
+        #stats {
+            position: absolute;
+            top: 460px;
+            left: 10px;
+            padding-left: 10px;
+            padding-bottom: 10px;
+            width: 475px;
+            font-size: 18px;
+            border-width: 3px;
+            border-style: solid;
+            background-color: brown;
+            color: white;
+        }
+
+        #canvas {
+            position: absolute;
+            left: 510px;
+            top: 10px;
+            border-width: 3px;
+            border-style: solid;
+            color: white;
+        }
     </style>
 </head>
 
-<body bgcolor="Coral">
-    <div class="wrapper" style="position: relative; top:22px; left: 500px">
-        <canvas id="canvas" height="1000" width="1000" style="background-color: chocolate;"></canvas>
+<body style="font-family: Arial, Helvetica, sans-serif;background-color: coral;">
+
+
+    <canvas id="canvas" width="750" height="750"></canvas>
+
+    <div id="controls">
+
+
+        <h2>
+            Labyrinth
+        </h2>
+
+        Anzahl der zu generierenden Felder:
+        <input id="felder" value="500">
+
+        <br>
+        <br>
+
+        <button id="startMaze" class="button" type="button" onclick="generate()">
+            Generieren
+        </button>
+
+        <h2>
+            Selber lösen
+        </h2>
+
+        <button id="startPlay" class="button" type="button" onclick="play()">
+            Spielen
+        </button>
+
+        <button id="startSurrender" class="button" type="button" onclick="surrender()">
+            Aufgeben
+        </button>
+
+        <br>
+        <br>
+
+
+        <h2>
+            Wegfindung
+        </h2>
+
+        <button id="startPath" class="button" type="button" onclick="findPath()">
+            Generieren
+        </button>
+
     </div>
-    <div class="controls"
-        style="position: absolute; top:30px; left:18px; padding:0px 5px;font-size:18px;border-width: 3px; border-style: solid; background-color: brown; color: white;">
+    <div id="stats">
+        <h2>
+            Stats
+        </h2>
+        <p id="amountMoved">Zurückgelegte Felder: </p>
+        <p id="rightMoves">Kürzester Weg: </p>
+        <p id="time">Verstrichene Zeit: </p>
 
-
-        <h2 style="font-family: Arial, Helvetica, sans-serif;">Labyrinth</h2>
-        <id="text" style="font-family: Arial, Helvetica, sans-serif;">Anzahl der zu generierenden Felder:</id> <input
-                id="felder" value="300"
-                style="background-color: chocolate; color: white; padding: 5px 5px; border: none;"><br><br>
-            <button id="startMaze" class="button" type="button" onclick="generate()">Generieren</button>
-
-
-            <h2 style="font-family: Arial, Helvetica, sans-serif;">Selber lösen</h2 Arial, Helvetica, sans-serif;">
-            <button id="startPlay" class="button" type="button" onclick="play()">Spielen</button><button id="startSurrender" class="button" type="button" onclick="surrender()">Aufgeben</button><br><br>
-            <p style="font-family: Arial, Helvetica, sans-serif;">
-
-
-                <h2 style="font-family: Arial, Helvetica, sans-serif;">Wegfindung</h2 Arial, Helvetica, sans-serif;">
-                <button id="startPath" class="button" type="button" onclick="findPath()">Generieren</button><br>
-                <p style="font-family: Arial, Helvetica, sans-serif;">Geschwindigkeit (niedrig = schneller):<input
-                        type="range" min="1" max="200" value="1" id="speed" style="width:100%;">
 
     </div>
     <script type="text/javascript" src="scripts/wall.js"></script>
     <script type="text/javascript" src="scripts/maze.js"></script>
     <script type="text/javascript" src="scripts/player.js"></script>
-</body>
 
-</html>
+</body </html>

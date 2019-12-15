@@ -15,54 +15,52 @@ function Wall(x, y) {
 
     this.highlight = function () {
         ctx.fillStyle = "green ";
-        ctx.fillRect(x * scale+scale*0.25, y * scale+scale*0.25, scale -scale*0.5, scale -scale*0.5);
+        ctx.fillRect(x * scale + scale * 0.25, y * scale + scale * 0.25, scale - scale * 0.5, scale - scale * 0.5);
     }
     this.show = function () {
         var x = this.x * scale;
         var y = this.y * scale;
-
+        ctx.lineWidth = Math.floor(scale / 50) + 1;
 
         if (this.visited) {
-            ctx.fillStyle = "purple";
+            ctx.fillStyle = "brown";
             ctx.fillRect(x, y, scale, scale);
         }
         if (this.visited && this.x == grid[grid.length - 1].x && this.y == grid[grid.length - 1].y) {
             ctx.fillStyle = "Crimson";
-            ctx.fillRect(x+scale*0.25, y+scale*0.25, scale-scale*0.5, scale-scale*0.5);
+            ctx.fillRect(x + scale * 0.25, y + scale * 0.25, scale - scale * 0.5, scale - scale * 0.5);
         }
         ctx.strokeStyle = "black";
 
         //RECHTS
-        if (this.walls[0]) {
-            ctx.lineWidth = scale / 50;
-            ctx.beginPath();
-            ctx.moveTo(x + scale, y);
-            ctx.lineTo(x + scale, y + scale);
-            ctx.stroke();
-        }
-        //LINKS
-        if (this.walls[1]) {
-            ctx.beginPath();
-            ctx.lineWidth = scale / 50;
-            ctx.moveTo(x, y + scale);
-            ctx.lineTo(x, y);
-            ctx.stroke();
-        }
-        //UNTEN
-        if (this.walls[2]) {
-            ctx.beginPath();
-            ctx.lineWidth = scale / 50;
-            ctx.moveTo(x + scale, y + scale);
-            ctx.lineTo(x, y + scale);
-            ctx.stroke();
-        }
-        //OBEN
-        if (this.walls[3]) {
-            ctx.beginPath();
-            ctx.lineWidth = scale / 50;
-            ctx.moveTo(x, y);
-            ctx.lineTo(x + scale, y);
-            ctx.stroke();
+        if (this.visited) {
+            if (this.walls[0]) {
+                ctx.beginPath();
+                ctx.moveTo(x + scale, y);
+                ctx.lineTo(x + scale, y + scale);
+                ctx.stroke();
+            }
+            //LINKS
+            if (this.walls[1]) {
+                ctx.beginPath();
+                ctx.moveTo(x, y + scale);
+                ctx.lineTo(x, y);
+                ctx.stroke();
+            }
+            //UNTEN
+            if (this.walls[2]) {
+                ctx.beginPath();
+                ctx.moveTo(x + scale, y + scale);
+                ctx.lineTo(x, y + scale);
+                ctx.stroke();
+            }
+            //OBEN
+            if (this.walls[3]) {
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x + scale, y);
+                ctx.stroke();
+            }
         }
     }
     this.checkNeighbours = function () {
@@ -101,39 +99,38 @@ function Wall(x, y) {
     this.showPath = function (c) {
         var x = this.x * scale;
         var y = this.y * scale;
+        ctx.lineWidth = Math.floor(scale / 50) + 1;
+
         ctx.fillStyle = c;
-        ctx.fillRect(x,y,scale,scale);
-        if (this.walls[0]) {
-            ctx.lineWidth = scale / 50;
-            ctx.beginPath();
-            ctx.moveTo(x + scale, y);
-            ctx.lineTo(x + scale, y + scale);
-            ctx.stroke();
-        }
-        //LINKS
-        if (this.walls[1]) {
-            ctx.beginPath();
-            ctx.lineWidth = scale / 50;
-            ctx.moveTo(x, y + scale);
-            ctx.lineTo(x, y);
-            ctx.stroke();
-        }
-        //UNTEN
-        if (this.walls[2]) {
-            ctx.beginPath();
-            ctx.lineWidth = scale / 50;
-            ctx.moveTo(x + scale, y + scale);
-            ctx.lineTo(x, y + scale);
-            ctx.stroke();
-        }
-        //OBEN
-        if (this.walls[3]) {
-            ctx.beginPath();
-            ctx.lineWidth = scale / 50;
-            ctx.moveTo(x, y);
-            ctx.lineTo(x + scale, y);
-            ctx.stroke();
-        }
+        ctx.fillRect(x, y, scale, scale);
+        ctx.strokeStyle = "black";
+            if (this.walls[0]) {
+                ctx.beginPath();
+                ctx.moveTo(x + scale, y);
+                ctx.lineTo(x + scale, y + scale);
+                ctx.stroke();
+            }
+            //LINKS
+            if (this.walls[1]) {
+                ctx.beginPath();
+                ctx.moveTo(x, y + scale);
+                ctx.lineTo(x, y);
+                ctx.stroke();
+            }
+            //UNTEN
+            if (this.walls[2]) {
+                ctx.beginPath();
+                ctx.moveTo(x + scale, y + scale);
+                ctx.lineTo(x, y + scale);
+                ctx.stroke();
+            }
+            //OBEN
+            if (this.walls[3]) {
+                ctx.beginPath();
+                ctx.moveTo(x, y);
+                ctx.lineTo(x + scale, y);
+                ctx.stroke();
+            }
     }
 
     this.addNeighbours = function () {

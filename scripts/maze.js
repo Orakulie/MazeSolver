@@ -21,14 +21,22 @@ var alreadyGeneratedPath = false;
 //PLAYER
 var player;
 var weg = [];
-
+var keyPresses = {};
+var nanoTime = 0;
+var time = 0;
 var updateInteval;
 
 
-var speed = document.getElementById("speed").value;
+var speed = 1;
 document.getElementById("startPath").disabled = true;
 document.getElementById("startPlay").disabled = true;
 document.getElementById("startSurrender").disabled = true;
+
+
+if(localStorage["felder"]) {
+    document.getElementById("felder").value = localStorage["felder"];
+    generate();
+}
 
 
 //PLAY
@@ -38,7 +46,7 @@ function play() {
     }
     document.getElementById("startPath").disabled = true;
     document.getElementById("startSurrender").disabled = false;
-    updateInteval = setInterval(updatePlayer, 1000 / 13);
+    updateInteval = setInterval(updatePlayer, 1000 / 10);
 }
 function surrender() {
     clearInterval(updateInteval);
@@ -54,23 +62,43 @@ function surrender() {
     ctx.fillRect(0 * scale + scale * 0.25, 0 * scale + scale * 0.25, scale - scale * 0.5, scale - scale * 0.5);
     document.getElementById("startSurrender").disabled = false;
 }
-document.addEventListener("keydown", ((evt) => {
-    if (player) {
-        player.changeDirection(evt.key);
-    }
-}));
+document.addEventListener("keydown", (evt) => {
+    /*     if (player) {
+            player.changeDirection(evt.key);
+        } */
+    keyPresses[evt.key] = true;
 
-document.addEventListener("keyup", ((evt) => {
-    if (player) {
-        player.stop();
-    }
-}));
+});
+
+document.addEventListener("keyup", (evt) => {
+    /*     if (player) {
+            player.stop();
+        } */
+    keyPresses[evt.key] = false;
+});
 function updatePlayer() {
     for (var i = 0; i < grid.length; i++) {
         grid[i].show();
     }
+    start.highlight();
     player.update();
     player.show();
+
+    if (player.timesMoved < 10) {
+        document.getElementById("amountMoved").innerHTML = "Zurückgelegte Felder: " + "0" + player.timesMoved;
+    } else {
+        document.getElementById("amountMoved").innerHTML = "Zurückgelegte Felder: " + player.timesMoved;
+    }
+    nanoTime++;
+    if (nanoTime >= 10) {
+        time++;
+        nanoTime = 0;
+        if (time < 10) {
+            document.getElementById("time").innerHTML = "Verstrichene Zeit: " + "0" + time + "s";
+        } else {
+            document.getElementById("time").innerHTML = "Verstrichene Zeit: " + time + "s";
+        }
+    }
 
     if (player.x == end.x && player.y == end.y) {
         clearInterval(updateInteval);
@@ -90,12 +118,13 @@ function updatePlayer() {
 //MAZE
 function generate() {
     document.getElementById("startMaze").disabled = true;
-    var speed = document.getElementById("speed").value;
     if (alreadyGenerated == false) {
         felder = document.getElementById("felder").value;
-        scale = Math.floor((canvas.height * canvas.width) / felder / 100);
-        rows = Math.floor(canvas.height / scale);
-        columns = Math.floor(canvas.width / scale);
+        rows = columns = Math.floor(Math.sqrt(felder));
+        scale = Math.floor(canvas.height / rows);
+        canvas.width = columns * scale;
+        canvas.height = rows * scale;
+        // ctx.translate(0.5, 0.5);
 
 
         for (var y = 0; y < rows; y++) {
@@ -115,19 +144,23 @@ function generate() {
         end = grid[grid.length - 1];
         openSet.push(start);
 
-
         for (var i = 0; i < grid.length; i++) {
             grid[i].addNeighbours();
         }
         updateInteval = setInterval(generateMaze, speed);
+
     } else {
         var temp = document.getElementById("felder").value;
+        localStorage["felder"] = ""+temp;
         window.location.reload(false);
         document.getElementById("felder").value = temp;
     }
 }
 function generateMaze() {
     if (stack.length != 0) {
+        ctx.fillStyle = "coral";
+        ctx.fillRect(0, 0, canvas.width, canvas.height);
+
         for (var i = 0; i < grid.length; i++) {
             grid[i].show();
         }
@@ -158,10 +191,11 @@ function generateMaze() {
                 removeWalls(grid[i], grid[index(grid[i].x + 1, grid[i].y)])
                 removeWalls(grid[i], grid[index(grid[i].x, grid[i].y + 1)]);
             }
-        }       
+        }
         for (var i = 0; i < grid.length; i++) {
             grid[i].show();
         }
+        start.highlight();
         document.getElementById("startMaze").disabled = false;
     }
 }
@@ -170,7 +204,6 @@ function generateMaze() {
 
 //PATH
 function findPath() {
-    var speed = document.getElementById("speed").value;
     document.getElementById("startPlay").disabled = true;
     updateInteval = setInterval(generatePath, speed);
 }
@@ -193,7 +226,7 @@ function generatePath() {
 
             if (openSet[optimalF] == end) { //Wenn das Element mit der besten F dass Ende ist FERTIG
                 //LÖSUNG
-
+                document.getElementById("rightMoves").innerHTML = "Kürzester Weg: " + path.length + " Felder, dein Weg war " + Math.floor(100 - (path.length / (weg.length - 1) * 100)) + "% schlechter";
                 alreadyGeneratedPath = true;
                 clearInterval(updateInteval);
                 document.getElementById("startPath").disabled = true;
@@ -251,9 +284,26 @@ function generatePath() {
                 weg[i].showPath("#6100C9");
             }
         }
+        for (var i = 1; i < weg.length; i++) {
+            if (!path.includes(weg[i])) {
+                if (path.includes(weg[i - 1])) {
+                    ctx.fillStyle = "crimson";
+                    ctx.beginPath();
+                    ctx.arc((weg[i - 1].x * scale) + (scale / 2), (weg[i - 1].y * scale) + (scale / 2), scale / 4, 0, 360);
+                    ctx.fill();
+                }
+            } else {
+                if (!path.includes(weg[i - 1])) {
+                    ctx.fillStyle = "crimson";
+                    ctx.beginPath();
+                    ctx.arc((weg[i].x * scale) + (scale / 2), (weg[i].y * scale) + (scale / 2), scale / 4, 0, 360);
+                    ctx.fill();
+                }
+            }
+        }
         ctx.beginPath();
         ctx.strokeStyle = "Crimson";
-        ctx.lineWidth = 10;
+        ctx.lineWidth = scale / 10;
         ctx.lineJoin = "round";
         ctx.lineCap = "round";
         ctx.moveTo(path[0].x * scale + scale / 2, path[0].y * scale + scale / 2);
@@ -264,7 +314,25 @@ function generatePath() {
 
         ctx.fillStyle = "green";
         ctx.fillRect(0 * scale + scale * 0.25, 0 * scale + scale * 0.25, scale - scale * 0.5, scale - scale * 0.5);
+
     } else {
+        for (var i = 1; i < weg.length; i++) {
+            if (!path.includes(weg[i])) {
+                if (path.includes(weg[i - 1])) {
+                    ctx.fillStyle = "crimson";
+                    ctx.beginPath();
+                    ctx.arc((weg[i - 1].x * scale) + (scale / 2), (weg[i - 1].y * scale) + (scale / 2), scale / 4, 0, 360);
+                    ctx.fill();
+                }
+            } else {
+                if (!path.includes(weg[i - 1])) {
+                    ctx.fillStyle = "crimson";
+                    ctx.beginPath();
+                    ctx.arc((weg[i].x * scale) + (scale / 2), (weg[i].y * scale) + (scale / 2), scale / 4, 0, 360);
+                    ctx.fill();
+                }
+            }
+        }
         ctx.beginPath();
         ctx.strokeStyle = "Crimson";
         ctx.lineWidth = 10;

@@ -6,6 +6,13 @@ var speed = 1;
 
 var laden = false;
 
+var g = "green";
+var c = "crimson";
+
+
+var timeDocument = document.getElementById("time");
+var amountMovedDocument = document.getElementById("amountMoved");
+
 disableButton("startPath", true);
 disableButton("startPlay", true);
 disableButton("startSurrender", true);
@@ -35,15 +42,14 @@ if (localStorage["laden"] == "true" && localStorage["grid"]) {
     //End Feld, unten rechts
     end = grid[grid.length - 1];
 
-    start.highlightColor("green");
-    end.highlightColor("crimson");
+    drawStartEnd();
     alreadyGenerated = true;
 
     laden = true;
     localStorage["laden"] = false;
     disableButton("startPath", false);
     disableButton("startPlay", false);
-} else {
+} else if(!localStorage["laden"] || localStorage["laden"] == "false") {
     laden = false;
 }
 
@@ -67,8 +73,6 @@ function saveLoad() {
             shortGrid[i].y = grid[i].y;
             shortGrid[i].walls = grid[i].walls
         }
-        console.log(shortGrid);
-        console.log(grid);
         dummy.value = JSON.stringify(shortGrid);
         dummy.select();
         document.execCommand("copy");
@@ -173,8 +177,7 @@ function surrender() {
         weg[i].showPath("#6100C9");
     }
     //Makiert Start und End
-    end.highlightColor("crimson");
-    start.highlightColor("green");
+    drawStartEnd();
 
     //Damit man den optimalen Weg generieren kann
     disableButton("startPath", false);
@@ -212,4 +215,9 @@ function index(x, y) {
 //Funktion zum deaktivieren eines Buttons
 function disableButton(button, x) {
     document.getElementById(button).disabled = x;
+}
+
+function drawStartEnd() {
+    end.highlightColor(c);
+    start.highlightColor(g);
 }

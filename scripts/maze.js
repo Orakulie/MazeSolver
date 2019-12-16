@@ -94,8 +94,7 @@ function generateMaze() {
 
 
         }
-        start.highlightColor("green");
-        end.highlightColor("crimson");
+        drawStartEnd();
     }
 }
 
@@ -131,7 +130,7 @@ function removeWalls(a, b) {
 
         //highlight current
         if(document.getElementById("startPath").disabled == true) {
-            a.highlightColor("green");
+            a.highlightColor(g);
         }
     }
 }

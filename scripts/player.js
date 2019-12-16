@@ -83,24 +83,23 @@ function updatePlayer() {
         grid[i].show();
     }
 
-    start.highlightColor("green");
-    end.highlightColor("crimson");
+    drawStartEnd();
     player.update();
     player.show();
 
     if (player.timesMoved < 10) {
-        document.getElementById("amountMoved").innerHTML = "Zurückgelegte Felder: " + "0" + player.timesMoved + " (" + (player.timesMoved - weg.length) + " Felder zurück gegangen)";
+        amountMovedDocument.innerHTML = "Zurückgelegte Felder: " + "0" + player.timesMoved + " (" + (player.timesMoved - weg.length) + " Felder zurück gegangen)";
     } else {
-        document.getElementById("amountMoved").innerHTML = "Zurückgelegte Felder: " + player.timesMoved + " (" + (player.timesMoved - weg.length) + " Felder zurück gegangen)";
+        amountMovedDocument.innerHTML = "Zurückgelegte Felder: " + player.timesMoved + " (" + (player.timesMoved - weg.length) + " Felder zurück gegangen)";
     }
     nanoTime++;
     if (nanoTime >= 10) {
         time++;
         nanoTime = 0;
         if (time < 10) {
-            document.getElementById("time").innerHTML = "Verstrichene Zeit: " + "0" + time + "s";
+            time.innerHTML = "Verstrichene Zeit: " + "0" + time + "s";
         } else {
-            document.getElementById("time").innerHTML = "Verstrichene Zeit: " + time + "s";
+            time.innerHTML = "Verstrichene Zeit: " + time + "s";
         }
     }
 
@@ -111,8 +110,7 @@ function updatePlayer() {
         for (var i = 0; i < weg.length; i++) {
             weg[i].showPath("#6100C9");
         }
-        start.highlightColor("green");
-        end.highlightColor("crimson");
+        drawStartEnd();
 
     }
 }

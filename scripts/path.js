@@ -24,9 +24,9 @@ function timer() {
 
 function generatePath() {
     if (pathTime < 10) {
-        document.getElementById("time").innerHTML = "Verstrichene Zeit: " + "0" + time + "s || 0" + pathTime + "s";
+        timeDocument.innerHTML = "Verstrichene Zeit: " + "0" + time + "s || 0" + pathTime + "s";
     } else {
-        document.getElementById("time").innerHTML = "Verstrichene Zeit: " + time + "s || " + pathTime + "s";
+        timeDocument.innerHTML = "Verstrichene Zeit: " + time + "s || " + pathTime + "s";
     }
 
     for (var i = 0; i < grid.length; i++) {
@@ -52,8 +52,11 @@ function generatePath() {
         if (current == end) {
 
             //Stats werden angepasst
-            document.getElementById("rightMoves").innerHTML = "Kürzester Weg: " + (path.length + 1) + " Felder, dein Weg war " + Math.floor(100 - ((path.length + 1) / (weg.length) * 100)) + "% schlechter";
-
+            if(weg.length != 0){
+            amountMovedDocument.innerHTML = "Kürzester Weg: " + (path.length + 1) + " Felder, dein Weg war " + Math.floor(100 - ((path.length + 1) / (weg.length) * 100)) + "% schlechter";
+            }else {
+                amountMovedDocument.innerHTML = "Kürzester Weg: " + (path.length + 1) + " Felder";
+            }
             //Update function wird gestoppt
             clearInterval(updateInteval);
             clearInterval(timer);
@@ -76,7 +79,7 @@ function generatePath() {
             if (!closedSet.includes(nachbar) && checkWalls(current, nachbar)) {
 
                 //Kosten bis zum Current + 1
-                var tempG = current.g + 1
+                var tempG = current.g + 1;
                 var newPath = false;
 
                 //Wenn der Nachbar im openSet ist...
@@ -142,14 +145,14 @@ function generatePath() {
             weg[i].showPath("#6100C9");
             if (!path.includes(weg[i + 1])) {
                 if (path.includes(weg[i])) {
-                    ctx.fillStyle = "crimson";
+                    ctx.fillStyle = c;
                     ctx.beginPath();
                     ctx.arc((weg[i].x * scale) + (scale / 2), (weg[i].y * scale) + (scale / 2), scale / 4, 0, 360);
                     ctx.fill();
                 }
             } else {
                 if (!path.includes(weg[i])) {
-                    ctx.fillStyle = "crimson";
+                    ctx.fillStyle = c;
                     ctx.beginPath();
                     ctx.arc((weg[i + 1].x * scale) + (scale / 2), (weg[i + 1].y * scale) + (scale / 2), scale / 4, 0, 360);
                     ctx.fill();
@@ -160,7 +163,7 @@ function generatePath() {
 
     //Zeichnet den Optimalen Pfad
     ctx.beginPath();
-    ctx.strokeStyle = "Crimson";
+    ctx.strokeStyle = c;
     ctx.lineWidth = scale / 5;
     ctx.lineJoin = "round";
     ctx.lineCap = "round";
@@ -170,8 +173,7 @@ function generatePath() {
     }
     ctx.stroke();
 
-    start.highlightColor("green");
-    end.highlightColor("crimson");
+    drawStartEnd();
 
 
 }
